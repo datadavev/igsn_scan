@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "igsn_ld_scan"
+version = "0.1.0"
+description = "Scanning known IGSN agents for JSON-LD content"
+authors = ["Dave <datadavev@users.noreply.github.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+#rdflib = {git = "https://github.com/datadavev/rdflib.git", rev = "develop"}
+#scrapy = "^2.4.0"
+#pyld = "^2.0.3"
+igsn-lib = {path = "../igsn_lib"}
+alembic = "^1.4.3"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
