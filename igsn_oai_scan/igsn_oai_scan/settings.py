@@ -15,7 +15,7 @@ NEWSPIDER_MODULE = 'igsn_oai_scan.spiders'
 DATABASE_URL = 'postgresql+psycopg2://scrapy@localhost/test_identifiers'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'igsn_oai_scan (+http://www.yourdomain.com)'
+USER_AGENT = 'igsn_oai_scan (+http://isamples.org)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True

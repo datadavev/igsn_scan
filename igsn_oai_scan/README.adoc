@@ -1,0 +1,48 @@
+# Scrapy Spider for IGSN OAI-PMH
+
+* https://docs.scrapy.org/en/latest/topics/architecture.html[Scrapy architecture overview]
+
+## Running
+
+----
+workon igsn_ld_scan
+cd igsn_oai_scan
+export SET_NAME=CNRS
+scrapy crawl igsn-oai-db \
+  -a service_url=https://doidb.wdc-terra.org/igsnoaip/oai \
+  -a set_spec=$SET_NAME \
+  -a from=2012-01-01 \
+  -s DATABASE_URL=sqlite:///tmp/test.db
+----
+
+### Requirements
+
+Database
+
+Crawled information is written to a database. For testing this can be
+sqlite, but use Postgres for large volume work.
+
+Set the database connection in `settings.py`:
+
+----
+DATABASE_URL = 'postgresql+psycopg2://scrapy@localhost/test_identifiers'
+----
+
+Properties in `settings.py` can be overridden from the commandline using
+`-s PROPERTY_NAME=VALUE` for `scrapy`.
+
+
+### Dataset setup
+
+The Database schema needs to be created and populated with a service.
+
+Currently this is done with the `harvest` cli:
+
+----
+workon igsn-cli
+# list services:
+igsn-harvest -d "$DATABASE_URL" services
+
+# add a service
+igsn-harvest -d "$DATABSE_URL" add-service "https://doidb.wdc-terra.org/igsnoaip/oai"
+----

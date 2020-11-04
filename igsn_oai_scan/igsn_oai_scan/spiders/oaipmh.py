@@ -7,6 +7,7 @@ import sickle.iterator
 import sickle.oaiexceptions
 import scrapy
 import igsn_lib.oai
+import igsn_lib.time
 from lxml import etree
 
 XMLParser = etree.XMLParser(
@@ -157,10 +158,12 @@ class OAIPMHSpider(scrapy.spiders.Spider):
     def _format_date(self, datetime_object):
         if datetime_object is None:
             return None
+        dt = datetime_object.astimezone(datetime.timezone.utc)
         if self.granularity == "YYYY-MM-DD":
-            return datetime_object.strftime("%Y-%m-%d")
+            return dt.strftime("%Y-%m-%d")
         elif self.granularity == "YYYY-MM-DDThh:mm:ssZ":
-            return datetime_object.strftime("%Y-%m-%dT%H:%M:%SZ")
+            return dt.strftime(igsn_lib.time.OAI_TIME_FORMAT)
+            #return datetime_object.strftime("%Y-%m-%dT%H:%M:%SZ")
         else:
             raise RuntimeError("Invalid granularity: %s" % self.granularity)
 

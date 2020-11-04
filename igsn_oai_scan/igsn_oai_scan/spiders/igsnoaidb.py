@@ -4,7 +4,7 @@ from . import oaipmh
 
 
 class DoidbSpider(oaipmh.OAIPMHSpider):
-    name = "doidb"
+    name = "igsn-oai-db"
 
     def __init__(self, service_url=None, set_spec=None, *args, **kwargs):
         if service_url is None:
