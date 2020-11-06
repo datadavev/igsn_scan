@@ -38,7 +38,7 @@ class IgsnOaiScanPipeline:
 
     @classmethod
     def from_crawler(cls, crawler):
-        db_url=crawler.settings.get("DATABASE_URL", None)
+        db_url = crawler.settings.get("DATABASE_URL", None)
         service_id = crawler.settings.get("SERVICE_ID", 1)
         return cls(db_url, service_id)
 
@@ -57,12 +57,15 @@ class IgsnOaiScanPipeline:
             # Set the set_spec if one provided with spider
             set_spec = None
             if spider.set_spec is not None:
-                # Add % to end for LIKE filter
-                set_spec = f"{spider.set_spec}%"
+                set_spec = spider.set_spec
             # Get the most recent record to set the retrieval FROM date
-            last_record = service.mostRecentIdentifierRetrieved(self._session, set_spec=set_spec)
+            last_record = service.mostRecentIdentifierRetrieved(
+                self._session, set_spec=set_spec
+            )
             if not last_record is None:
-                self.logger.info("Setting spider start time to: %s", last_record.id_time)
+                self.logger.info(
+                    "Setting spider start time to: %s", last_record.id_time
+                )
                 spider.from_date = last_record.id_time
 
     def close_spider(self, spider):

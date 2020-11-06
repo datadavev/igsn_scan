@@ -15,6 +15,19 @@ scrapy crawl igsn-oai-db \
   -s DATABASE_URL=sqlite:///tmp/test.db
 ----
 
+Using `scrapyd`:
+
+----
+curl 'http://localhost:6800/schedule.json' \
+  -d project=default \
+  -d spider=igsn-oai-db \
+  -d set_spec=IEDA \
+  -d from=2012-01-01
+----
+
+To resume a crawl, leave off the `from` property. Scrapy will examine the database
+for the most recent date and start from their (duplicates are ignored).
+
 ### Requirements
 
 Database
