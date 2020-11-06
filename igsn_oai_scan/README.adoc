@@ -59,3 +59,128 @@ igsn-harvest -d "$DATABASE_URL" services
 # add a service
 igsn-harvest -d "$DATABSE_URL" add-service "https://doidb.wdc-terra.org/igsnoaip/oai"
 ----
+
+Index the `set_spec` column:
+
+[source, sql]
+----
+create index set_spec_gin_index on identifier
+using gin (set_spec);
+----
+
+### Some Queries
+
+Total records grouped by set:
+
+[source, sql]
+----
+select count(*) as C, jsonb_array_elements_text(set_spec) as SS
+from identifier
+group by SS
+order by SS;
+
+     c   |      ss
+---------+--------------
+    3201 | ANDS
+    3201 | ANDS.AUSCOPE
+     883 | CNRS
+     883 | CNRS.CNRS
+   32692 | CSIRO
+...
+----
+
+Can also do this:
+[source, sql]
+----
+select count(*) as C, set_spec as SS
+from identifier
+group by SS
+order by SS;
+
+    c    |             ss
+---------+-----------------------------
+    3201 | ["ANDS", "ANDS.AUSCOPE"]
+     883 | ["CNRS", "CNRS.CNRS"]
+   32692 | ["CSIRO", "CSIRO.CSIRO"]
+   20550 | ["GEOAUS", "GEOAUS.AU"]
+    9794 | ["GFZ", "GFZ.GFZ"]
+ 2613158 | ["IEDA", "IEDA.SESAR"]
+   18624 | ["IFREMER", "IFREMER.IGSN"]
+     905 | ["KIGAM", "KIGAM.DC"]
+  136538 | ["MARUM", "MARUM.HB"]
+      60 | ["UKI", "UKI.RZ"]
+----
+
+
+Most recently harvested items from the IEDA set:
+
+[source, sql]
+----
+select id, set_spec, provider_time at time zone 'UTC'
+from identifier where set_spec ? 'IEDA'
+order by provider_time desc limit 5;
+
+    id     |        set_spec        |      timezone
+-----------+------------------------+---------------------
+ ODP01XBML | ["IEDA", "IEDA.SESAR"] | 2015-08-13 00:44:54
+ ODP01XBMK | ["IEDA", "IEDA.SESAR"] | 2015-08-13 00:44:53
+ ODP01XBMJ | ["IEDA", "IEDA.SESAR"] | 2015-08-13 00:44:51
+...
+----
+
+List of sets from the `set_spec` entry:
+
+[source, sql]
+----
+select distinct jsonb_array_elements_text(set_spec) as SS
+from identifier
+order by SS;
+
+      ss
+--------------
+ ANDS
+ ANDS.AUSCOPE
+ CNRS
+ CNRS.CNRS
+ CSIRO
+ CSIRO.CSIRO
+ GEOAUS
+ GEOAUS.AU
+...
+----
+
+Records per hour during harvesting:
+
+[source, sql]
+----
+with tshours as (
+  select generate_series(
+    date_trunc(
+        'hour',
+        (select min(harvest_time at time zone 'UTC') from identifier)
+    ),
+    date_trunc(
+        'hour',
+        (select max(harvest_time at time zone 'UTC') from identifier)
+    ),
+    '1 hour'::interval
+  ) as hour
+)
+select count(*) as C, tshours.hour as G from tshours
+left join identifier
+    on date_trunc(
+          'hour',
+          identifier.harvest_time at time zone 'UTC'
+        ) = tshours.hour
+group by G order by G desc;
+   c    |          g
+--------+---------------------
+  41608 | 2020-11-06 20:00:00
+ 106358 | 2020-11-06 19:00:00
+  46834 | 2020-11-06 18:00:00
+  54973 | 2020-11-06 17:00:00
+  57158 | 2020-11-06 16:00:00
+  58150 | 2020-11-06 15:00:00
+  58324 | 2020-11-06 14:00:00
+...
+----
