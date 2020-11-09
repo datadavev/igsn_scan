@@ -117,7 +117,7 @@ Most recently harvested items from the IEDA set:
 [source, sql]
 ----
 select id, set_spec, provider_time at time zone 'UTC'
-from identifier where set_spec ? 'IEDA'
+from identifier where set_spec ? 'IEDA'                    <1>
 order by provider_time desc limit 5;
 
     id     |        set_spec        |      timezone
@@ -127,6 +127,10 @@ order by provider_time desc limit 5;
  ODP01XBMJ | ["IEDA", "IEDA.SESAR"] | 2015-08-13 00:44:51
 ...
 ----
+<1> The https://www.postgresql.org/docs/9.5/functions-json.html[`?` operator] is
+    evaluates if a string exists as a top-level key in a JSON object. Since `set_spec`
+    is an array, it is treated like a list of top level elements by Postgres. This
+    operator is provided by sqlAlchemy `has_key`.
 
 List of sets from the `set_spec` entry:
 

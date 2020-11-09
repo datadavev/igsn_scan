@@ -83,9 +83,10 @@ class OAIPMHSpider(scrapy.spiders.Spider):
         )
         params = {
             "verb": "ListRecords",
-            "set": self.set_spec,
             "metadataPrefix": self.metadata_prefix,
         }
+        if self.set_spec is not None:
+            params['set'] = self.set_spec
         if self.from_date is not None:
             params["from"] = self._format_date(self.from_date)
         if self.until_date is not None:
